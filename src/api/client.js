@@ -29,7 +29,8 @@ async function post(payload) {
   try {
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // text/plain avoids the CORS preflight; the backend parses the body as JSON regardless of content type.
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
       body: JSON.stringify(payload),
       signal: controller.signal,
     })

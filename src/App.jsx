@@ -404,7 +404,7 @@ function AppContent() {
                 }}
                 onPrint={(message) => {
                   try {
-                    printDraft(message)
+                    printDraft(message, selectedThread.file_number)
                   } catch (error) {
                     notify(error?.message || 'प्रिंट विंडो नहीं खुली।', 'error')
                   }

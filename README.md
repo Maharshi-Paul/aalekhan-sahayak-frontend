@@ -84,6 +84,10 @@ The one-click sample-letter button fetches `/sample/incoming_letter.pdf`. **The 
 
 The provided API must allow browser CORS requests from the deployed frontend origin. The frontend does not add authentication because none is in the API contract.
 
+## CORS note
+
+The frontend sends JSON-serialized request bodies with `Content-Type: text/plain;charset=UTF-8` and no other custom headers. This makes the browser request a simple request, avoiding the CORS preflight; the backend parses the body as JSON regardless of its content type.
+
 ## Responsible AI and review
 
 - Drafts require human review and approval before signing or sending.

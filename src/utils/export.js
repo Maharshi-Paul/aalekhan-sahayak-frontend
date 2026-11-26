@@ -2,11 +2,12 @@ import { Document, Packer, Paragraph, TextRun } from 'docx'
 import { normalizeDraft } from './format.js'
 
 export function fileSlug(value) {
-  return String(value || 'patrawali')
-    .normalize('NFKC')
-    .toLocaleLowerCase('en-IN')
-    .replace(/[^\p{L}\p{N}]+/gu, '-')
-    .replace(/^-+|-+$/g, '') || 'patrawali'
+  const number = String(value ?? '')
+    .replace(/[०-९]/g, (digit) => String(digit.charCodeAt(0) - 0x0966))
+    .replace(/[^0-9/]/g, '')
+    .replace(/\/+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return number ? `draft-${number}` : 'draft'
 }
 
 export async function downloadWord(message, fileNumber) {
@@ -24,7 +25,7 @@ export async function downloadWord(message, fileNumber) {
     sections: [{ children: paragraphs }],
   })
   const blob = await Packer.toBlob(document)
-  triggerDownload(blob, `${fileSlug(fileNumber)}-draft.docx`)
+  triggerDownload(blob, `${fileSlug(fileNumber)}.docx`)
 }
 
 function triggerDownload(blob, filename) {
@@ -36,7 +37,7 @@ function triggerDownload(blob, filename) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
-export function printDraft(message) {
+export function printDraft(message, fileNumber) {
   const normalized = normalizeDraft(message?.draft_content)
   const safeText = normalized
     .replace(/&/g, '&amp;')
@@ -53,7 +54,7 @@ export function printDraft(message) {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>आलेखन सहायक — मसौदा</title>
+        <title>${fileSlug(fileNumber)}</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
