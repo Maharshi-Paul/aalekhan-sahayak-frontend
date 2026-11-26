@@ -11,6 +11,7 @@ export default function AssistantBubble({
   onRefine,
   onToggleSource,
   onCompare,
+  onQuickRefine,
 }) {
   return (
     <div className="message-line message-line-assistant">
@@ -26,6 +27,7 @@ export default function AssistantBubble({
             onRefine={onRefine}
             onToggleSource={onToggleSource}
             onCompare={onCompare}
+            onQuickRefine={onQuickRefine}
           />
           : message.text && <p className="assistant-routing">{message.text}</p>}
         <time>{formatMessageTime(message.timestamp)}</time>
