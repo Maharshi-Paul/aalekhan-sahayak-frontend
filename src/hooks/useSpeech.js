@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export default function useSpeech(language, onFinalText) {
+export default function useSpeech(language, onFinalText, onError) {
   const [isListening, setIsListening] = useState(false)
   const [interimText, setInterimText] = useState('')
   const recognitionRef = useRef(null)
   const onFinalTextRef = useRef(onFinalText)
+  const onErrorRef = useRef(onError)
   onFinalTextRef.current = onFinalText
+  onErrorRef.current = onError
 
   const isSupported = typeof window !== 'undefined'
     && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition)
@@ -36,10 +38,15 @@ export default function useSpeech(language, onFinalText) {
       if (finalText) onFinalTextRef.current(finalText)
       setInterimText(pendingText)
     }
-    recognition.onerror = () => {
+    recognition.onerror = (event) => {
       setInterimText('')
       setIsListening(false)
       recognitionRef.current = null
+      onErrorRef.current?.(
+        event.error === 'not-allowed'
+          ? 'माइक्रोफ़ोन की अनुमति दें और पुनः प्रयास करें।'
+          : 'आवाज़ रिकॉर्ड नहीं हो सकी। कृपया पुनः प्रयास करें।',
+      )
     }
     recognition.onend = () => {
       setInterimText('')
@@ -47,9 +54,15 @@ export default function useSpeech(language, onFinalText) {
       recognitionRef.current = null
     }
     recognitionRef.current = recognition
-    recognition.start()
-    setIsListening(true)
-    return true
+    try {
+      recognition.start()
+      setIsListening(true)
+      return true
+    } catch {
+      recognitionRef.current = null
+      onErrorRef.current?.('आवाज़ इनपुट शुरू नहीं हो सका। कृपया पुनः प्रयास करें।')
+      return false
+    }
   }, [language])
 
   useEffect(() => () => recognitionRef.current?.stop(), [])

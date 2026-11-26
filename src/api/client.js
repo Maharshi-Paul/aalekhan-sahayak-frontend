@@ -20,6 +20,7 @@ export function switchToDemoMode() {
 async function post(payload) {
   const url = import.meta.env.VITE_API_URL
   if (!url) {
+    consecutiveFailures += 1
     throw new Error('API URL is not configured. Set VITE_API_URL or enable demo mode.')
   }
 
@@ -59,10 +60,17 @@ async function post(payload) {
 export async function listThreads() {
   if (demoMode) return mockListThreads()
   const data = await post({ action: 'list_threads' })
-  return { threads: Array.isArray(data.threads) ? data.threads : [] }
+  if (!Array.isArray(data.threads)) {
+    consecutiveFailures += 1
+    throw new Error('The service returned an invalid thread list.')
+  }
+  return { threads: data.threads }
 }
 
 export async function processDraft(request) {
+  if (typeof request?.user_message !== 'string' || !request.user_message.trim()) {
+    throw new Error('कृपया मसौदे के लिए निर्देश लिखें।')
+  }
   if (demoMode) return mockProcessDraft(request)
   return post({ action: 'process', ...request })
 }

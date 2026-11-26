@@ -23,7 +23,7 @@ function traceIcon(status) {
 }
 
 function urgencyTone(urgency = '') {
-  const normalized = urgency.toLocaleLowerCase()
+  const normalized = String(urgency || '').toLocaleLowerCase()
   if (normalized.includes('तत्काल') || normalized.includes('सर्वोच्च') || normalized.includes('urgent')) return 'urgency-high'
   if (normalized.includes('immediate') || normalized.includes('अति शीघ्र')) return 'urgency-medium'
   return 'urgency-normal'
@@ -42,6 +42,7 @@ export default function DraftCard({
   onRefine,
   onToggleSource,
   onCompare,
+  onQuickRefine,
   hasPrevious,
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -118,6 +119,18 @@ export default function DraftCard({
         {onToggleSource && <button className="button button-outline" onClick={() => onToggleSource(message)}>View source ↔ draft</button>}
         {hasPrevious && <button className="button button-outline" onClick={() => onCompare?.(message)}>Compare with previous version</button>}
         <button className="button button-light" onClick={() => onRefine?.()}>Refine</button>
+      </div>
+      <div className="refine-chips" aria-label="त्वरित सुधार">
+        {['और औपचारिक बनाएं', 'समय-सीमा 5 दिन करें', 'Translate to English', 'D.O. पत्र में बदलें', 'पत्रावली टिप्पण बनाएं'].map((instruction) => (
+          <button
+            type="button"
+            className="template-chip"
+            key={instruction}
+            onClick={() => onQuickRefine?.(instruction)}
+          >
+            {instruction}
+          </button>
+        ))}
       </div>
     </section>
   )

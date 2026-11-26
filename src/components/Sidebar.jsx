@@ -9,6 +9,9 @@ export default function Sidebar({
   onRetry,
   onSelect,
   onNewFile,
+  onArchitecture,
+  presentationMode,
+  onPresentationToggle,
 }) {
   const [query, setQuery] = useState('')
   const filteredThreads = useMemo(() => {
@@ -22,7 +25,7 @@ export default function Sidebar({
   }, [threads, query])
 
   return (
-    <aside className="sidebar" aria-label="पत्रावलियाँ">
+    <aside className={`sidebar ${selectedKey ? 'has-active-thread' : ''}`} aria-label="पत्रावलियाँ">
       <header className="sidebar-header">
         <div className="sidebar-title-row">
           <div className="brand-lockup">
@@ -35,9 +38,21 @@ export default function Sidebar({
           <button className="icon-button sidebar-new-icon" onClick={onNewFile} aria-label="नई पत्रावली बनाएं" title="नई पत्रावली">
             <span aria-hidden="true">＋</span>
           </button>
+          <button
+            className={`icon-button sidebar-presentation ${presentationMode ? 'presentation-on' : ''}`}
+            onClick={onPresentationToggle}
+            aria-pressed={presentationMode}
+            aria-label="Presentation mode"
+            title="Presentation mode"
+          >
+            <span aria-hidden="true">⛶</span>
+          </button>
         </div>
         <button className="button button-light sidebar-new-button" onClick={onNewFile}>
           <span aria-hidden="true">＋</span> नई पत्रावली / New file
+        </button>
+        <button className="button button-light architecture-button" onClick={onArchitecture}>
+          <span aria-hidden="true">◇</span> How it works / कैसे काम करता है
         </button>
         <label className="search-field">
           <span aria-hidden="true">⌕</span>

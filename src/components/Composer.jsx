@@ -45,9 +45,14 @@ export default function Composer({
   const fileInputRef = useRef(null)
   const cameraInputRef = useRef(null)
   const [fileError, setFileError] = useState('')
-  const speech = useSpeech(language, (text) => {
-    onValueChange((current) => `${current}${current && !current.endsWith(' ') ? ' ' : ''}${text}`)
-  })
+  const speech = useSpeech(
+    language,
+    (text) => {
+      setFileError('')
+      onValueChange((current) => `${current}${current && !current.endsWith(' ') ? ' ' : ''}${text}`)
+    },
+    setFileError,
+  )
 
   useEffect(() => {
     const textarea = textareaRef?.current
@@ -81,6 +86,7 @@ export default function Composer({
   }
 
   function updateText(event) {
+    setFileError('')
     onValueChange(event.target.value)
     event.target.style.height = 'auto'
     event.target.style.height = `${Math.min(event.target.scrollHeight, 112)}px`
@@ -166,7 +172,10 @@ export default function Composer({
         <button
           type="button"
           className="button button-primary send-button"
-          onClick={onSend}
+          onClick={() => {
+            setFileError('')
+            onSend()
+          }}
           disabled={isBusy || (!value.trim() && !attachment)}
           aria-label="निर्देश भेजें"
         >

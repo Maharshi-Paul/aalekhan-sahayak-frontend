@@ -16,6 +16,7 @@ export default function MessageList({
   onRefine,
   onToggleSource,
   onCompare,
+  onQuickRefine,
 }) {
   const bottomRef = useRef(null)
 
@@ -29,6 +30,8 @@ export default function MessageList({
         const draftVersion = message.role === 'assistant' && message.draft_content
           ? messages.slice(0, index + 1).filter((item) => item.role === 'assistant' && item.draft_content).length
           : 0
+        const hasSource = message.role === 'assistant' && Boolean(message.draft_content)
+          && messages.slice(0, index).some((item) => item.role === 'user' && item.source_url)
         return message.role === 'user'
           ? <UserBubble key={`${message.timestamp || 'user'}-${index}`} message={message} />
           : <AssistantBubble
@@ -40,8 +43,9 @@ export default function MessageList({
             onDownloadWord={onDownloadWord}
             onPrint={onPrint}
             onRefine={onRefine}
-            onToggleSource={onToggleSource}
+            onToggleSource={hasSource ? onToggleSource : null}
             onCompare={onCompare}
+            onQuickRefine={onQuickRefine}
           />
       })}
       {isBusy && (

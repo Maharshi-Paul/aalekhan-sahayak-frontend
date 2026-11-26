@@ -1,4 +1,12 @@
-export default function ChatHeader({ thread, language, onLanguageChange, onBack, onOpenFacts }) {
+export default function ChatHeader({
+  thread,
+  language,
+  onLanguageChange,
+  onBack,
+  onOpenFacts,
+  presentationMode,
+  onPresentationToggle,
+}) {
   return (
     <header className="chat-header">
       <button className="icon-button mobile-back" onClick={onBack} aria-label="पत्रावलियों पर वापस जाएं">
@@ -19,6 +27,15 @@ export default function ChatHeader({ thread, language, onLanguageChange, onBack,
       </label>
       <button className="button button-outline facts-button" onClick={onOpenFacts}>
         <span aria-hidden="true">▣</span> Case facts
+      </button>
+      <button
+        className={`button button-outline presentation-toggle ${presentationMode ? 'presentation-on' : ''}`}
+        onClick={onPresentationToggle}
+        aria-pressed={presentationMode}
+        aria-label="Presentation mode"
+        title="Presentation mode"
+      >
+        <span aria-hidden="true">⛶</span><span className="presentation-label">Present</span>
       </button>
       <button className="icon-button mobile-menu" aria-label="अधिक विकल्प" title="अधिक विकल्प">
         <span aria-hidden="true">⋮</span>

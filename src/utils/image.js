@@ -1,4 +1,4 @@
-const MAX_PDF_BYTES = 4 * 1024 * 1024
+const MAX_PDF_BYTES = 4_000_000
 const MAX_IMAGE_SIDE = 1600
 
 export function validateAttachment(file) {

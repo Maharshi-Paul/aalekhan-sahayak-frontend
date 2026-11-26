@@ -6,9 +6,7 @@ export function formatRelativeTime(value) {
   const yesterday = new Date()
   yesterday.setDate(today.getDate() - 1)
 
-  if (date.toDateString() === today.toDateString()) {
-    return date.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })
-  }
+  if (date.toDateString() === today.toDateString()) return 'Today'
   if (date.toDateString() === yesterday.toDateString()) return 'Yesterday'
   return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
 }
