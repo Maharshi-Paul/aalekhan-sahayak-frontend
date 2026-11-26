@@ -29,7 +29,9 @@ export default function AssistantBubble({
             onCompare={onCompare}
             onQuickRefine={onQuickRefine}
           />
-          : message.text && <p className="assistant-routing">{message.text}</p>}
+          : <p className="assistant-routing">
+            {message.text || message.summary || 'इस प्रतिक्रिया में मसौदा उपलब्ध नहीं था।'}
+          </p>}
         <time>{formatMessageTime(message.timestamp)}</time>
       </article>
     </div>
