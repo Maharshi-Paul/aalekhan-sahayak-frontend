@@ -56,6 +56,10 @@ export default function Composer({
     textarea.style.height = `${Math.min(textarea.scrollHeight, 112)}px`
   }, [value, textareaRef])
 
+  useEffect(() => {
+    if (hint) textareaRef?.current?.focus()
+  }, [hint, textareaRef])
+
   function chooseFile(event) {
     const file = event.target.files?.[0]
     event.target.value = ''

@@ -19,3 +19,13 @@ export function formatMessageTime(value) {
   if (Number.isNaN(date.getTime())) return ''
   return date.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })
 }
+
+export function normalizeDraft(value) {
+  return String(value || '')
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*-{3,}\s*$/.test(line))
+    .map((line) => line.replace(/\*\*/g, '').replace(/[ \t]{2,}$/, ''))
+    .join('\n')
+    .replace(/\n(?:[ \t]*\n){2,}/g, '\n\n')
+    .trim()
+}

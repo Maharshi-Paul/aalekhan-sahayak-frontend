@@ -6,6 +6,7 @@ import MessageList from './components/MessageList.jsx'
 import NewFileModal from './components/NewFileModal.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import Welcome from './components/Welcome.jsx'
+import usePipelineState, { PipelineProvider } from './hooks/usePipelineState.js'
 import { encodeAttachment } from './utils/image.js'
 
 function threadKey(thread) {
@@ -25,7 +26,8 @@ function localKey() {
   return globalThis.crypto?.randomUUID?.() || `local-${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
-function App() {
+function AppContent() {
+  const pipeline = usePipelineState()
   const [threads, setThreads] = useState([])
   const [selectedKey, setSelectedKey] = useState(null)
   const [isLoadingThreads, setIsLoadingThreads] = useState(true)
@@ -132,6 +134,8 @@ function App() {
     setIsSending(true)
     setRequestError('')
     setPendingRequest(pending)
+    pipeline.start(Boolean(pending.attachment))
+    const pipelineTimer = window.setInterval(() => pipeline.advance(), 2500)
     try {
       const filePayload = pending.attachment ? await encodeAttachment(pending.attachment) : {}
       const request = {
@@ -171,6 +175,8 @@ function App() {
     } catch (error) {
       setRequestError(error?.message || 'मसौदा तैयार नहीं हो सका। कृपया पुनः प्रयास करें।')
     } finally {
+      window.clearInterval(pipelineTimer)
+      pipeline.stop()
       busyRef.current = false
       setIsSending(false)
     }
@@ -222,6 +228,13 @@ function App() {
                 messages={selectedThread.messages}
                 error={requestError}
                 onRetry={() => sendMessage(pendingRequest)}
+                isBusy={isSending}
+                activeStepIndex={pipeline.activeStepIndex}
+                hasDocument={pipeline.hasDocument}
+                onRefine={() => {
+                  setComposerHint('मसौदे में क्या सुधार करना है, लिखें।')
+                  window.setTimeout(() => textareaRef.current?.focus(), 0)
+                }}
               />
               <Composer
                 value={draftText}
@@ -251,6 +264,14 @@ function App() {
         {selectedThread ? `चयनित पत्रावली ${selectedThread.file_number}` : 'कोई पत्रावली चयनित नहीं'}
       </span>
     </main>
+  )
+}
+
+function App() {
+  return (
+    <PipelineProvider>
+      <AppContent />
+    </PipelineProvider>
   )
 }
 
