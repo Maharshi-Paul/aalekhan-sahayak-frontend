@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
-import { listThreads } from './api/client.js'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { listThreads, processDraft } from './api/client.js'
 import ChatHeader from './components/ChatHeader.jsx'
+import Composer, { DEFAULT_ATTACHMENT_INSTRUCTION } from './components/Composer.jsx'
 import MessageList from './components/MessageList.jsx'
 import NewFileModal from './components/NewFileModal.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import Welcome from './components/Welcome.jsx'
+import { encodeAttachment } from './utils/image.js'
 
 function threadKey(thread) {
   return thread.key || thread.thread_id || `local-${Date.now()}`
@@ -31,6 +33,16 @@ function App() {
   const [isNewFileOpen, setIsNewFileOpen] = useState(false)
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false)
   const [language, setLanguage] = useState('Hindi')
+  const [draftText, setDraftText] = useState('')
+  const [attachment, setAttachment] = useState(null)
+  const [attachmentUrl, setAttachmentUrl] = useState('')
+  const [isSending, setIsSending] = useState(false)
+  const [requestError, setRequestError] = useState('')
+  const [pendingRequest, setPendingRequest] = useState(null)
+  const [composerHint, setComposerHint] = useState('')
+  const busyRef = useRef(false)
+  const textareaRef = useRef(null)
+  const objectUrlsRef = useRef(new Set())
 
   const selectedThread = useMemo(
     () => threads.find((thread) => thread.key === selectedKey) || null,
@@ -45,7 +57,11 @@ function App() {
       const nextThreads = (Array.isArray(response.threads) ? response.threads : [])
         .map(normalizeThread)
         .sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0))
-      setThreads(nextThreads)
+      setThreads((current) => [
+        ...current.filter((thread) => !thread.thread_id),
+        ...nextThreads.filter((thread) => !current.some((item) => item.thread_id === thread.thread_id)),
+        ...nextThreads.filter((thread) => current.some((item) => item.thread_id === thread.thread_id)),
+      ])
     } catch (error) {
       setThreadError(error?.message || 'पत्रावलियाँ लोड नहीं हो सकीं।')
     } finally {
@@ -56,6 +72,109 @@ function App() {
   useEffect(() => {
     loadThreads()
   }, [])
+
+  useEffect(() => () => {
+    objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
+  }, [])
+
+  function changeAttachment(file) {
+    if (attachmentUrl && attachment) {
+      URL.revokeObjectURL(attachmentUrl)
+      objectUrlsRef.current.delete(attachmentUrl)
+    }
+    if (!file) {
+      setAttachment(null)
+      setAttachmentUrl('')
+      return
+    }
+    const url = URL.createObjectURL(file)
+    objectUrlsRef.current.add(url)
+    setAttachment(file)
+    setAttachmentUrl(url)
+  }
+
+  function clearSentAttachment() {
+    setAttachment(null)
+    setAttachmentUrl('')
+  }
+
+  async function sendMessage(retryRequest = null) {
+    if (busyRef.current || !selectedThread) return
+    let pending = retryRequest
+    if (!pending) {
+      const text = draftText.trim() || (attachment ? DEFAULT_ATTACHMENT_INSTRUCTION : '')
+      if (!text) return
+      const userMessage = {
+        role: 'user',
+        text,
+        timestamp: new Date().toISOString(),
+        attachment_name: attachment?.name || '',
+        source_url: attachmentUrl || '',
+        source_type: attachment?.type || '',
+      }
+      pending = {
+        key: selectedThread.key,
+        thread_id: selectedThread.thread_id || null,
+        file_number: selectedThread.file_number,
+        user_message: text,
+        language,
+        attachment,
+        user_message_id: localKey(),
+      }
+      setThreads((current) => current.map((thread) => (
+        thread.key === selectedThread.key
+          ? { ...thread, messages: [...thread.messages, { ...userMessage, id: pending.user_message_id }] }
+          : thread
+      )))
+    }
+
+    busyRef.current = true
+    setIsSending(true)
+    setRequestError('')
+    setPendingRequest(pending)
+    try {
+      const filePayload = pending.attachment ? await encodeAttachment(pending.attachment) : {}
+      const request = {
+        thread_id: pending.thread_id,
+        file_number: pending.file_number,
+        user_message: pending.user_message,
+        language: pending.language,
+        ...filePayload,
+      }
+      const startedAt = performance.now()
+      const response = await processDraft(request)
+      const durationSeconds = Number(((performance.now() - startedAt) / 1000).toFixed(1))
+      const timestamp = new Date().toISOString()
+      const assistantMessage = {
+        role: 'assistant',
+        ...response,
+        timestamp,
+        duration_seconds: durationSeconds,
+      }
+      setThreads((current) => current
+        .map((thread) => thread.key === pending.key
+          ? {
+            ...thread,
+            thread_id: response.thread_id || thread.thread_id,
+            file_number: response.file_number || thread.file_number,
+            subject: response.subject || thread.subject,
+            extracted_facts: response.extracted_facts || {},
+            messages: [...thread.messages, assistantMessage],
+            updated_at: timestamp,
+          }
+          : thread)
+        .sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0)))
+      setDraftText('')
+      clearSentAttachment()
+      setComposerHint('')
+      setPendingRequest(null)
+    } catch (error) {
+      setRequestError(error?.message || 'मसौदा तैयार नहीं हो सका। कृपया पुनः प्रयास करें।')
+    } finally {
+      busyRef.current = false
+      setIsSending(false)
+    }
+  }
 
   function createThread(fileNumber) {
     const thread = {
@@ -99,8 +218,24 @@ function App() {
                 onLanguageChange={setLanguage}
                 onBack={() => setIsMobileChatOpen(false)}
               />
-              <MessageList messages={selectedThread.messages} />
-              <div className="composer-placeholder">संदेश लिखने की सुविधा अगले चरण में उपलब्ध होगी।</div>
+              <MessageList
+                messages={selectedThread.messages}
+                error={requestError}
+                onRetry={() => sendMessage(pendingRequest)}
+              />
+              <Composer
+                value={draftText}
+                onValueChange={setDraftText}
+                attachment={attachment}
+                attachmentUrl={attachmentUrl}
+                onAttachmentChange={changeAttachment}
+                isBusy={isSending}
+                isEmpty={selectedThread.messages.length === 0}
+                language={language}
+                onSend={() => sendMessage()}
+                textareaRef={textareaRef}
+                hint={composerHint}
+              />
             </>
           ) : (
             <Welcome onNewFile={() => setIsNewFileOpen(true)} />

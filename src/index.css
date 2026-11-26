@@ -564,16 +564,6 @@ button {
   white-space: pre-wrap;
 }
 
-.composer-placeholder {
-  min-height: 72px;
-  padding: 20px;
-  border-top: 1px solid #d6dcdf;
-  color: #667781;
-  background: #f0f2f5;
-  text-align: center;
-  font-size: 13px;
-}
-
 .welcome-screen {
   display: grid;
   flex: 1;
@@ -730,6 +720,228 @@ button {
   clip-path: inset(50%);
 }
 
+.composer-wrap {
+  z-index: 1;
+  padding: 9px clamp(10px, 3vw, 42px) 8px;
+  border-top: 1px solid #d6dcdf;
+  background: #f0f2f5;
+}
+
+.composer-hint {
+  margin-bottom: 8px;
+  color: #006f5b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.template-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 9px;
+}
+
+.template-chip {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid #c8ddd7;
+  border-radius: 999px;
+  color: #006f5b;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.template-chip:hover {
+  background: #e7f4f0;
+}
+
+.attachment-preview {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 220px;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 8px;
+  padding: 7px 10px;
+  border: 1px solid #d7dfe2;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.attachment-preview img,
+.attachment-file-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 6px;
+  object-fit: cover;
+  color: #008069;
+  background: #e5f4ef;
+}
+
+.attachment-file-icon {
+  font-size: 21px;
+}
+
+.attachment-file-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.attachment-file-copy strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-file-copy small {
+  color: #667781;
+  font-size: 10px;
+}
+
+.composer-error {
+  margin: 0 0 7px;
+  color: #a42620;
+  font-size: 12px;
+}
+
+.composer-box {
+  display: flex;
+  min-height: 54px;
+  gap: 7px;
+  align-items: flex-end;
+  padding: 6px 8px;
+  border: 1px solid #d6dcdf;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgb(11 20 26 / 4%);
+}
+
+.composer-box:focus-within {
+  border-color: #6ea99a;
+  box-shadow: 0 0 0 2px rgb(0 128 105 / 10%);
+}
+
+.composer-tools {
+  display: flex;
+  gap: 1px;
+  align-items: flex-end;
+}
+
+.composer-tool {
+  width: 38px;
+  height: 40px;
+  color: #667781;
+}
+
+.composer-tool > span {
+  font-size: 22px;
+}
+
+.composer-textarea-wrap {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+}
+
+.composer-box textarea {
+  display: block;
+  width: 100%;
+  min-height: 40px;
+  max-height: 112px;
+  resize: none;
+  overflow-y: auto;
+  padding: 9px 5px;
+  border: 0;
+  outline: 0;
+  color: #111b21;
+  background: transparent;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.composer-box textarea:focus-visible {
+  outline: 0;
+}
+
+.composer-box textarea::placeholder {
+  color: #8a969c;
+}
+
+.interim-caption {
+  position: absolute;
+  right: 4px;
+  bottom: -19px;
+  left: 4px;
+  overflow: hidden;
+  color: #87949b;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.mic-button {
+  font-size: 13px;
+}
+
+.mic-button.is-listening {
+  color: #fff;
+  background: #c62828;
+  animation: mic-pulse 1.2s ease-in-out infinite;
+}
+
+.mic-button.is-listening > span {
+  font-size: 13px;
+}
+
+@keyframes mic-pulse {
+  50% { box-shadow: 0 0 0 7px rgb(198 40 40 / 15%); }
+}
+
+.send-button {
+  min-height: 40px;
+  padding-inline: 12px;
+  border-radius: 10px;
+}
+
+.send-button > span:last-child {
+  font-size: 15px;
+}
+
+.composer-caption {
+  display: flex;
+  min-height: 20px;
+  justify-content: space-between;
+  padding: 4px 5px 0;
+  color: #77868d;
+  font-size: 10px;
+}
+
+.request-error-bubble {
+  max-width: min(78%, 560px);
+  padding: 12px;
+  border: 1px solid #edc0bd;
+  border-radius: 10px;
+  color: #84201c;
+  background: #fff5f4;
+  box-shadow: 0 1px 1px rgb(11 20 26 / 10%);
+}
+
+.request-error-bubble p {
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+
 @media (max-width: 860px) {
   .app-shell {
     padding: 0;
@@ -831,6 +1043,24 @@ button {
 
   .welcome-card {
     padding: 32px 18px;
+  }
+
+  .composer-wrap {
+    padding-inline: 8px;
+  }
+
+  .composer-box {
+    gap: 3px;
+    padding-inline: 4px;
+  }
+
+  .composer-tool {
+    width: 34px;
+  }
+
+  .send-button {
+    gap: 5px;
+    padding-inline: 9px;
   }
 
   .welcome-steps {
