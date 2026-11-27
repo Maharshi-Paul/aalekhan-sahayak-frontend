@@ -1,0 +1,113 @@
+==========================================================
+ Aalekhan Sahayak (Frontend) - REQUIREMENTS & QUICK SETUP
+==========================================================
+
+This is a React + Vite web app. There is NO requirements.txt / pip here
+(that is Python). The equivalent is package.json, and npm reads it for you.
+
+----------------------------------------------------------
+ 1. WHAT YOU MUST INSTALL (only one thing)
+----------------------------------------------------------
+  Node.js 20 or newer (LTS)   ->  https://nodejs.org
+    - npm comes bundled with Node.js, do not install it separately.
+    - Keep the default options in the installer.
+    - Restart the PC (or at least close and reopen the terminal) after
+      installing, otherwise "node" will not be recognised.
+
+  Check it worked (Command Prompt):
+      node -v        (should show v20.x or higher)
+      npm -v
+
+  Internet is needed for the first "npm install".
+
+----------------------------------------------------------
+ 2. WHAT YOU DO NOT NEED
+----------------------------------------------------------
+  - Git                      (download the project as a ZIP instead)
+  - A GitHub account / login (the repo is public)
+  - Python, Java, Docker, AWS CLI
+  - Any API key
+  - Manually installing libraries (npm does it, see section 3)
+
+----------------------------------------------------------
+ 3. LIBRARIES (installed automatically by "npm install")
+----------------------------------------------------------
+  Runtime:
+    react ^18.3.1
+    react-dom ^18.3.1
+    docx ^9.5.1            (Word export)
+    diff ^7.0.0            (draft version comparison)
+
+  Dev tools:
+    vite ^6.3.5
+    @vitejs/plugin-react ^4.7.0
+    tailwindcss ^4.1.11
+    @tailwindcss/vite ^4.1.11
+
+  You do not install these yourself. They come from package.json.
+
+----------------------------------------------------------
+ 4. QUICK SETUP (Windows, fastest way)
+----------------------------------------------------------
+  1. Install Node.js LTS (section 1) and restart.
+  2. On GitHub open:
+       https://github.com/Maharshi-Paul/aalekhan-sahayak-frontend
+     Click  Code > Download ZIP, then right-click the ZIP > Extract All.
+  3. Open the extracted folder and double-click  setup.bat
+     (it creates .env in demo mode, runs npm install, starts the app
+      and opens the browser).
+
+  Manual alternative (Command Prompt opened inside the project folder;
+  tip: type  cmd  in the File Explorer address bar and press Enter):
+
+      copy .env.example .env
+      npm install
+      npm run dev
+
+  Mac / Linux:
+
+      cp .env.example .env
+      npm install
+      npm run dev
+
+  Then open  http://localhost:5173  in Chrome or Edge
+  (voice dictation only works in Chrome/Edge).
+
+----------------------------------------------------------
+ 5. DEMO MODE vs LIVE MODE  (.env file)
+----------------------------------------------------------
+  Demo mode (no backend, no key, works for everyone):
+      VITE_USE_MOCK=true
+
+  Live mode (real drafting through the provided AWS backend):
+      VITE_USE_MOCK=false
+      VITE_API_URL=<Lambda Function URL, ask Maharshi, do not post it publicly>
+
+  After editing .env, stop the app (Ctrl+C) and run  npm run dev  again.
+
+----------------------------------------------------------
+ 6. TROUBLESHOOTING
+----------------------------------------------------------
+  "node is not recognized"     -> Restart the PC / reopen the terminal.
+  "npm install" is stuck/fails -> Check internet, then delete the
+                                  node_modules folder and run it again.
+  Page does not open           -> Go to http://localhost:5173 manually.
+  Port 5173 already in use     -> Vite will offer another port; use the
+                                  link shown in the terminal.
+  Do not copy node_modules from another PC. Always run npm install.
+
+----------------------------------------------------------
+ 7. OPTIONAL: if you want to push changes to the repo later
+----------------------------------------------------------
+  (Only needed if you will edit code and upload it. Not needed to run.)
+
+  a) Install Git: https://git-scm.com/download/win
+  b) Tell Git who you are (once):
+         git config --global user.name  "Your Name"
+         git config --global user.email "email-used-on-github@example.com"
+  c) The first "git push" opens a browser window; sign in to GitHub there
+     (Git Credential Manager does this).
+  d) Maharshi must add you as a collaborator first:
+         Repo > Settings > Collaborators > Add people
+     Otherwise the push is rejected (403).
+  e) Or fork the repo and open a pull request instead.
